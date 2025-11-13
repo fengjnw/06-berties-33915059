@@ -7,9 +7,14 @@ router.get('/register', function (req, res, next) {
 })
 
 router.post('/registered', function (req, res, next) {
+    // validate input
+    if (!req.body.first || !req.body.last || !req.body.email) {
+        res.send("Please provide first name, last name, and email.");
+        return;
+    }
     // saving data in database
-    res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
-}); 
+    res.send(' Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered!  We will send an email to you at ' + req.body.email);
+});
 
 // Export the router object so index.js can access it
 module.exports = router
