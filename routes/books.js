@@ -37,7 +37,7 @@ router.get('/search_result', function (req, res, next) {
             res.send("No books found." + "<br>" + "<a href='/books/search'>Back</a>");
             return;
         }
-        res.render("search_result.ejs", { searched_books: result, search_text: req.query.search_text })
+        res.render("search_result.ejs", { searched_books: result, search_text: req.query.search_text, search_mode: req.query.search_mode })
     });
 });
 
@@ -49,6 +49,7 @@ router.get('/list', function (req, res, next) {
         if (err) {
             next(err)
         }
+        // if no books found, inform the user
         if (result.length === 0) {
             res.send("No books for now." + "<br>" + "<a href='/'>Back</a>");
             return;
@@ -69,6 +70,7 @@ router.get('/bargainbooks', function (req, res, next) {
         if (err) {
             next(err)
         }
+        // if no books found, inform the user
         if (result.length === 0) {
             res.send("No books on bargain offer for now." + "<br>" + "<a href='/'>Back</a>");
             return;
