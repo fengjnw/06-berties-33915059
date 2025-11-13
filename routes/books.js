@@ -2,28 +2,37 @@
 const express = require("express")
 const router = express.Router()
 
+// Handle search page request
 router.get('/search', function (req, res, next) {
     res.render("search.ejs")
 });
 
+// Handle search requests
 router.get('/search_result', function (req, res, next) {
     //searching in the database
-    // res.send("You searched for: " + req.query.search_text);
+    // validate input
     if (!req.query.search_text) {
         res.send("Please enter a search term.");
         return;
     }
+    // build query and search term, depending on search mode
     const isExact = req.query.search_mode === 'Exact Match';
+    // if Exact Match is selected, we use '=' operator
+    // if Partial Match is selected, we use 'LIKE' operator with wildcards
     const sqlquery = isExact
         ? "SELECT * FROM books WHERE name = ?"
         : "SELECT * FROM books WHERE name LIKE ?";
+    // if Exact Match is selected, we use the term as is
+    // if Partial Match is selected, we wrap the term with '%' wildcards
     const searchTerm = isExact
         ? req.query.search_text
         : '%' + req.query.search_text + '%';
+    // execute sql query
     db.query(sqlquery, [searchTerm], (err, result) => {
         if (err) {
             next(err)
         }
+        // if no books found, inform the user
         if (result.length === 0) {
             res.send("No books found.");
             return;

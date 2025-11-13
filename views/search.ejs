@@ -10,10 +10,12 @@
 <body>
   <h1>Search <%=shopData.shopName%>
   </h1>
+  <!-- Form to search for books -->
   <form action="/books/search_result" method="GET">
     <p>What book do you want?</p>
     <input id="search-box" type="text" name="search_text">
     <br>
+    <!-- Search mode options -->
     <input id="exact_match" type="radio" name="search_mode" value="Exact Match" checked>
     <label for="exact_match">Exact Match</label>
     <br>
