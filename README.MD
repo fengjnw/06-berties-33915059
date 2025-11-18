@@ -10,48 +10,92 @@ To install and run:
 npm install
 node index.js
 
-Project structure
------------------
+---
 
-create_db.sql
-insert_test_data.sql
-index.js
-package.json
-README.MD
-public/
-	main.css
-routes/
-	books.js
-	main.js
-	users.js
-views/
-	about.ejs
-	addbook.ejs
-	index.ejs
-	list.ejs
-	register.ejs
-	search.ejs
+## Extensions
 
-Routes
-------
+### Dotenv
+- Use `dotenv` package to manage environment variables for database connection details. For example:
+```
+DB_HOST=localhost
+```
 
-/: Home page (renders `index.ejs`)
+- Variables are stored in a `.env` file and loaded at runtime by `process.env.VARIABLE_NAME`. For example:
+```
+host: process.env.DB_HOST
+```
 
-/about: About page (renders `about.ejs`)
+### Audit
+- Login attempts (successful and failed) are logged into a `login_attempts` table with timestamp, username, success flag, and IP address.
+- Insertion happens in the `/users/loggedin` route after login is attempted.
+- The audit page displays these attempts in a table format.
+- Use ejs to transform data like timestamps and success flags for better readability.
 
-/bookadded (POST): Accepts form data to add a book to the database and returns a confirmation message.
+### Delete functionality
+- Both books and users can be deleted via links in their respective lists, using the `:id` parameter.
+- After deletion, the user is redirected back to the list page to see the updated list.
+- Implemented in the `/books/delete/:id` and `/users/delete/:id` routes. 
 
-/books/list: Shows all books (renders `list.ejs`).
+### Validation
+- Basic HTML5 validation is added to forms (e.g., `required` attributes, input types, `min` and `step` for price).
+- Input validation statements are included in routes handlers.
+- Empty search queries are handled by displaying a message.
 
-/books/search: Search form (renders `search.ejs`).
+### Back buttons
+- Added back buttons to relevant pages for better navigation.
 
-/books/search_result: Handles search queries and renders `search_result.ejs` with results.
+---
 
-/books/addbook: Renders add-book form (`addbook.ejs`).
+## Project structure
+```
+.
+├── create_db.sql
+├── insert_test_data.sql
+├── index.js                # Express bootstrap + router wiring
+├── package.json / package-lock.json
+├── public/
+│   └── main.css            # Site-wide styling
+├── routes/
+│   ├── main.js             # root + about pages
+│   ├── books.js            # book catalog CRUD/search routes
+│   └── users.js            # registration, login, audit routes
+├── views/
+│   ├── about.ejs
+│   ├── addbook.ejs
+│   ├── bargainbooks.ejs
+│   ├── book_list.ejs
+│   ├── index.ejs
+│   ├── login.ejs
+│   ├── login_audit.ejs
+│   ├── register.ejs
+│   ├── search.ejs
+│   ├── search_result.ejs
+│   └── user_list.ejs
+└── README.MD
+```
 
-/books/bargainbooks: Lists books priced under 20 (renders `bargainbooks.ejs`).
+---
 
-/users/register: Renders the user registration form (`register.ejs`).
+## Routes
 
-/users/registered (POST): Accepts registration form and returns a confirmation message.
+**Main router (`routes/main.js`)**
+- `GET /` → renders `index.ejs`
+- `GET /about` → renders `about.ejs`
 
+**Books router (`routes/books.js`)**
+- `GET /books/list` → render `book_list.ejs` with all books
+- `GET /books/addbook` → render `addbook.ejs`
+- `POST /books/bookadded` → insert a new book, respond with confirmation
+- `GET /books/search` → render search form (`search.ejs`)
+- `GET /books/search_result` → run search (exact/partial) and render `search_result.ejs`
+- `GET /books/bargainbooks` → render `bargainbooks.ejs` for books under £20
+- `GET /books/delete/:id` → delete a book then redirect back to the list
+
+**Users router (`routes/users.js`)**
+- `GET /users/register` → render `register.ejs`
+- `POST /users/registered` → create a user (hash password, store, confirm)
+- `GET /users/list` → render `user_list.ejs` with all users
+- `GET /users/delete/:id` → delete a user then redirect back to the list
+- `GET /users/login` → render `login.ejs`
+- `POST /users/loggedin` → authenticate user; logs success/failure into `login_attempts`
+- `GET /users/audit` → render `login_audit.ejs` showing recent login attempts

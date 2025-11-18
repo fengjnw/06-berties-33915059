@@ -66,13 +66,18 @@ router.get('/addbook', function (req, res, next) {
 router.post('/bookadded', function (req, res, next) {
     // validate input
     if (!req.body.name || !req.body.price) {
-        res.send("Please provide both name and price of the book.");
+        res.send("Please provide both name and price of the book." + "<br>" + "<a href='/books/addbook'>Back</a>");
+        return;
+    }
+    const price = parseFloat(req.body.price);
+    if (!Number.isFinite(price) || price < 0) {
+        res.send("Please enter a non-negative price for the book." + "<br>" + "<a href='/books/addbook'>Back</a>");
         return;
     }
     // saving data in database
     let sqlquery = "INSERT INTO books (name, price) VALUES (?,?)"
     // execute sql query
-    let newrecord = [req.body.name, req.body.price]
+    let newrecord = [req.body.name, price]
     db.query(sqlquery, newrecord, (err, result) => {
         if (err) {
             next(err)
