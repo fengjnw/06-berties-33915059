@@ -106,7 +106,7 @@ router.post('/loggedin', function (req, res, next) {
                 next(err)
             }
             if (isMatch) {
-                res.send("Login successful! Welcome " + req.body.username + "<br><a href='/'>Back</a>");
+                res.send("Login successful! Welcome " + req.body.username + "<br><a href='/'>Back to Home</a>");
                 db.query(logQuery, [req.body.username, true, req.ip, 'Login successful']);
             } else {
                 res.send("Incorrect password." + "<br>" + "<a href='/users/login'>Back</a>");

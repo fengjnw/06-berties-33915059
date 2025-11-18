@@ -34,7 +34,8 @@ host: process.env.DB_HOST
 ### Delete functionality
 - Both books, users, and login attempts can be deleted via links in their respective lists, using the `:id` parameter.
 - After deletion, the user is redirected back to the list page to see the updated list.
-- Implemented in the `/books/delete/:id`, `/users/delete/:id`, and `/users/audit/delete/:id` routes. 
+- Implemented in the `/books/delete/:id`, `/users/delete/:id`, and `/users/audit/delete/:id` routes.
+- This function is only for debug management and should not be present in a production system without proper access control.
 
 ### Validation
 - Basic HTML5 validation is added to forms (e.g., `required` attributes, input types, `min` and `step` for price).
