@@ -32,9 +32,9 @@ host: process.env.DB_HOST
 - Use ejs to transform data like timestamps and success flags for better readability.
 
 ### Delete functionality
-- Both books and users can be deleted via links in their respective lists, using the `:id` parameter.
+- Both books, users, and login attempts can be deleted via links in their respective lists, using the `:id` parameter.
 - After deletion, the user is redirected back to the list page to see the updated list.
-- Implemented in the `/books/delete/:id` and `/users/delete/:id` routes. 
+- Implemented in the `/books/delete/:id`, `/users/delete/:id`, and `/users/audit/delete/:id` routes. 
 
 ### Validation
 - Basic HTML5 validation is added to forms (e.g., `required` attributes, input types, `min` and `step` for price).
