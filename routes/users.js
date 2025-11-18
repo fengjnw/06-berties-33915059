@@ -8,6 +8,7 @@ router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
 
+// Handle user registration request
 router.post('/registered', function (req, res, next) {
     // validate input
     if (!req.body.username || !req.body.first || !req.body.last || !req.body.email || !req.body.password) {
@@ -33,6 +34,7 @@ router.post('/registered', function (req, res, next) {
             else {
                 result = 'Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered!  We will send an email to you at ' + req.body.email;
                 result += '\nYour password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword;
+                result += '<br><a href="/users/register">Back to Register</a>';
                 res.send(result);
             }
         });
@@ -68,6 +70,42 @@ router.get('/delete/:id', function (req, res, next) {
         } else {
             res.send('User with ID ' + userId + ' has been deleted.<br><a href="/users/list">Back to User List</a>');
         }
+    });
+});
+
+// Handle user login request
+router.get('/login', function (req, res, next) {
+    res.render('login.ejs')
+});
+
+router.post('/loggedin', function (req, res, next) {
+    // validate input
+    if (!req.body.username || !req.body.password) {
+        res.send("Please provide both username and password. " + "<br>" + "<a href='/users/login'>Back</a>");
+        return;
+    }
+    let sqlquery = "SELECT * FROM users WHERE username = ?"; // query database to get the user with the specified username
+    // execute sql query
+    db.query(sqlquery, [req.body.username], (err, result) => {
+        if (err) {
+            next(err)
+        }
+        if (result.length === 0) {
+            res.send("User not found." + "<br>" + "<a href='/users/login'>Back</a>");
+            return;
+        }
+        const hashedPassword = result[0].hashedPassword;
+        // compare password
+        bcrypt.compare(req.body.password, hashedPassword, function (err, isMatch) {
+            if (err) {
+                next(err)
+            }
+            if (isMatch) {
+                res.send("Login successful! Welcome " + req.body.username + "<br><a href='/users/login'>Back</a>");
+            } else {
+                res.send("Incorrect password." + "<br>" + "<a href='/users/login'>Back</a>");
+            }
+        });
     });
 });
 
