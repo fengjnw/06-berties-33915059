@@ -108,7 +108,7 @@ router.get('/delete/:id', function (req, res, next) {
         if (err) {
             next(err)
         } else {
-            res.redirect('/books/list');
+            res.redirect(`${req.baseUrl}/list`);
         }
     });
 });
