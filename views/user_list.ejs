@@ -14,12 +14,12 @@
     <h1>
         <%=shopData.shopName%> Shop
     </h1>
-    <h2>Here are the books that we sell:</h2>
-    <!-- List of available books -->
+    <h2>Here are the users:</h2>
+    <!-- List of available users -->
     <ul>
-        <% availableBooks.forEach(book=> { %>
+        <% users.forEach(user=> { %>
             <li>
-                <%= book.name %>, £<%= book.price %>
+                <%= user.username %> - <%= user.first_name %> <%= user.last_name %>, Email: <%= user.email %> <a href="/users/delete/<%= user.id %>">Delete</a>
             </li>
             <% }); %>
     </ul>

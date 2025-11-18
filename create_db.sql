@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name VARCHAR(50),
     last_name  VARCHAR(50),
     email      VARCHAR(100) UNIQUE,
-    password   VARCHAR(255),
+    hashedPassword   VARCHAR(255),
     PRIMARY KEY(id));
 
 # Create the application user

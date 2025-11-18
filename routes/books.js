@@ -54,13 +54,33 @@ router.get('/list', function (req, res, next) {
             res.send("No books for now." + "<br>" + "<a href='/'>Back</a>");
             return;
         }
-        res.render("list.ejs", { availableBooks: result })
+        res.render("book_list.ejs", { availableBooks: result })
     });
 });
 
 router.get('/addbook', function (req, res, next) {
     res.render("addbook.ejs")
 });
+
+// Handle add book request
+router.post('/bookadded', function (req, res, next) {
+    // validate input
+    if (!req.body.name || !req.body.price) {
+        res.send("Please provide both name and price of the book.");
+        return;
+    }
+    // saving data in database
+    let sqlquery = "INSERT INTO books (name, price) VALUES (?,?)"
+    // execute sql query
+    let newrecord = [req.body.name, req.body.price]
+    db.query(sqlquery, newrecord, (err, result) => {
+        if (err) {
+            next(err)
+        }
+        else
+            res.send(' This book is added to database, name: ' + req.body.name + ' price ' + req.body.price + '<br>' + '<a href="/books/addbook">Add another book</a>');
+    })
+})
 
 // Handle bargain books request
 router.get('/bargainbooks', function (req, res, next) {
@@ -76,6 +96,20 @@ router.get('/bargainbooks', function (req, res, next) {
             return;
         }
         res.render("bargainbooks.ejs", { bargainBooks: result })
+    });
+});
+
+// Handle delete book request
+router.get('/delete/:id', function (req, res, next) {
+    let bookId = req.params.id;
+    let sqlquery = "DELETE FROM books WHERE id = ?"; // query database to delete the book with the specified id
+    // execute sql query
+    db.query(sqlquery, [bookId], (err, result) => {
+        if (err) {
+            next(err)
+        } else {
+            res.send("Book deleted successfully." + "<br>" + "<a href='/books/list'>Back to Book List</a>");
+        }
     });
 });
 
