@@ -2,7 +2,6 @@
 const express = require("express")
 const router = express.Router()
 const bcrypt = require('bcrypt')
-const saltRounds = 10
 
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
@@ -17,6 +16,7 @@ router.post('/registered', function (req, res, next) {
     }
     // hash password
     const plainPassword = req.body.password;
+    const saltRounds = 10
     bcrypt.hash(plainPassword, saltRounds, function (err, hashedPassword) {
         // Store hashed password in your database
         if (err) {
@@ -68,7 +68,7 @@ router.get('/delete/:id', function (req, res, next) {
         if (err) {
             next(err)
         } else {
-            res.send('User with ID ' + userId + ' has been deleted.<br><a href="/users/list">Back to User List</a>');
+            res.redirect('/users/list');
         }
     });
 });
@@ -78,13 +78,17 @@ router.get('/login', function (req, res, next) {
     res.render('login.ejs')
 });
 
+// Handle user logged in request
 router.post('/loggedin', function (req, res, next) {
     // validate input
     if (!req.body.username || !req.body.password) {
         res.send("Please provide both username and password. " + "<br>" + "<a href='/users/login'>Back</a>");
         return;
     }
-    let sqlquery = "SELECT * FROM users WHERE username = ?"; // query database to get the user with the specified username
+    // log the login attempt
+    let logQuery = "INSERT INTO login_attempts (username, success, ip_address, reason) VALUES (?, ?, ?, ?)";
+    // retrieve user from database
+    let sqlquery = "SELECT * FROM users WHERE username = ?";
     // execute sql query
     db.query(sqlquery, [req.body.username], (err, result) => {
         if (err) {
@@ -92,6 +96,7 @@ router.post('/loggedin', function (req, res, next) {
         }
         if (result.length === 0) {
             res.send("User not found." + "<br>" + "<a href='/users/login'>Back</a>");
+            db.query(logQuery, [req.body.username, false, req.ip, 'User not found']);
             return;
         }
         const hashedPassword = result[0].hashedPassword;
@@ -101,11 +106,30 @@ router.post('/loggedin', function (req, res, next) {
                 next(err)
             }
             if (isMatch) {
-                res.send("Login successful! Welcome " + req.body.username + "<br><a href='/users/login'>Back</a>");
+                res.send("Login successful! Welcome " + req.body.username + "<br><a href='/'>Back</a>");
+                db.query(logQuery, [req.body.username, true, req.ip, 'Login successful']);
             } else {
                 res.send("Incorrect password." + "<br>" + "<a href='/users/login'>Back</a>");
+                db.query(logQuery, [req.body.username, false, req.ip, 'Incorrect password']);
             }
         });
+    });
+});
+
+// Audit user login
+router.get('/audit', function (req, res, next) {
+    let sqlquery = "SELECT * FROM login_attempts ORDER BY timestamp DESC";
+    // execute sql query
+    db.query(sqlquery, (err, result) => {
+        if (err) {
+            return next(err);
+        }
+        // if no records found, inform the user
+        if (!result || result.length === 0) {
+            res.send("No login attempts recorded." + "<br>" + "<a href='/'>Back</a>");
+            return;
+        }
+        res.render("login_audit.ejs", { loginAttempts: result });
     });
 });
 

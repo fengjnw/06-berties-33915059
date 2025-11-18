@@ -20,6 +20,15 @@ CREATE TABLE IF NOT EXISTS users (
     hashedPassword   VARCHAR(255),
     PRIMARY KEY(id));
 
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id         INT AUTO_INCREMENT,
+    username   VARCHAR(50),
+    success    BOOLEAN,
+    timestamp  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    reason     VARCHAR(255),
+    PRIMARY KEY(id));
+
 # Create the application user
 CREATE USER IF NOT EXISTS 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop'; 
 GRANT ALL PRIVILEGES ON berties_books.* TO 'berties_books_app'@'localhost';

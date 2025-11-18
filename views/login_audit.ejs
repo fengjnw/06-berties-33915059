@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Login Audit in <%=shopData.shopName%>
+    </title>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+
+<body>
+    <h1>
+        Login Audit in <%=shopData.shopName%>
+    </h1>
+    <h2>Here are the login attempts:</h2>
+    <table class="audit-table">
+        <thead>
+            <tr>
+                <th scope="col">User</th>
+                <th scope="col">Success</th>
+                <th scope="col">IP Address</th>
+                <th scope="col">Reason</th>
+                <th scope="col">Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% loginAttempts.forEach(attempt=> { %>
+                <tr>
+                    <td>
+                        <%= attempt.username %>
+                    </td>
+                    <td>
+                        <% if (attempt.success) { %>Yes<% } else { %>No<% } %>
+                    </td>
+                    <td>
+                        <%= attempt.ip_address %>
+                    </td>
+                    <td>
+                        <%= attempt.reason %>
+                    </td>
+                    <td>
+                        <%= new Date(attempt.timestamp).toLocaleString('en-GB') %>
+                    </td>
+                </tr>
+                <% }); %>
+        </tbody>
+    </table>
+    <a href="/">Back</a>
+</body>
+
+</html>

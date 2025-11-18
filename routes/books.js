@@ -108,7 +108,7 @@ router.get('/delete/:id', function (req, res, next) {
         if (err) {
             next(err)
         } else {
-            res.send("Book deleted successfully." + "<br>" + "<a href='/books/list'>Back to Book List</a>");
+            res.redirect('/books/list');
         }
     });
 });
