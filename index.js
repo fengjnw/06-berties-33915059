@@ -27,7 +27,7 @@ app.locals.shopData = { shopName: "Bertie's Books" }
 
 // 
 const db = mysql.createPool({
-    host: process.env.BB_HOST,
+    host: process.env.BB_HOST || 'localhost',
     user: process.env.BB_USER,
     password: process.env.BB_PASSWORD,
     database: process.env.BB_DATABASE,
