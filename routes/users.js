@@ -34,7 +34,7 @@ router.post('/registered', function (req, res, next) {
             else {
                 result = 'Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered!  We will send an email to you at ' + req.body.email;
                 result += '\nYour password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword;
-                result += '<br><a href="/users/register">Back to Register</a>';
+                result += '<br><a href="/">Back to Home</a>';
                 res.send(result);
             }
         });
