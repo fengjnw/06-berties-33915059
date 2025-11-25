@@ -26,6 +26,16 @@ app.use(express.static(path.join(__dirname, 'public')))
 // Define our application-specific data
 app.locals.shopData = { shopName: "Bertie's Books" }
 
+// Set up the session middleware
+app.use(session({
+    secret: 'somerandomstuff',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        expires: 600000
+    }
+}))
+
 // 
 const db = mysql.createPool({
     host: process.env.BB_HOST || 'localhost',

@@ -7,6 +7,15 @@ router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
 
+// Middleware function to check if user is logged in
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId) {
+        res.redirect('./login') // redirect to the login page
+    } else {
+        next(); // move to the next middleware function
+    }
+}
+
 // Handle user registration request
 router.post('/registered', function (req, res, next) {
     // validate input
@@ -53,7 +62,7 @@ router.post('/registered', function (req, res, next) {
 });
 
 // Handle list users request
-router.get('/list', function (req, res, next) {
+router.get('/list', redirectLogin, function (req, res, next) {
     // Code to retrieve and display list of users from the database would go here
     let sqlquery = "SELECT * FROM users"; // query database to get all the books
     // execute sql query
@@ -117,6 +126,8 @@ router.post('/loggedin', function (req, res, next) {
                 next(err)
             }
             if (isMatch) {
+                // Save user session here, when login is successful
+                req.session.userId = req.body.username;
                 res.send("Login successful! Welcome " + req.body.username + "<br><a href='/'>Back to Home</a>");
                 db.query(logQuery, [req.body.username, true, req.ip, 'Login successful']);
             } else {
