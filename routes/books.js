@@ -2,6 +2,7 @@
 const express = require("express")
 const router = express.Router()
 const redirectLogin = require('./users').redirectLogin; // import the redirectLogin middleware
+const { check, validationResult } = require('express-validator');
 
 // Handle search page request
 router.get('/search', function (req, res, next) {
@@ -9,13 +10,10 @@ router.get('/search', function (req, res, next) {
 });
 
 // Handle search requests
-router.get('/search_result', function (req, res, next) {
+router.get('/search_result', [
+    check('search_text').notEmpty()
+], function (req, res, next) {
     //searching in the database
-    // validate input
-    if (!req.query.search_text) {
-        res.send("Please enter a search term." + "<br>" + "<a href='/books/search'>Back</a>");
-        return;
-    }
     // build query and search term, depending on search mode
     const isExact = req.query.search_mode === 'Exact Match';
     // if Exact Match is selected, we use '=' operator
@@ -64,29 +62,34 @@ router.get('/addbook', redirectLogin, function (req, res, next) {
 });
 
 // Handle add book request
-router.post('/bookadded', redirectLogin, function (req, res, next) {
-    // validate input
-    if (!req.body.name || !req.body.price) {
-        res.send("Please provide both name and price of the book." + "<br>" + "<a href='/books/addbook'>Back</a>");
-        return;
-    }
-    const price = parseFloat(req.body.price);
-    if (!Number.isFinite(price) || price < 0) {
-        res.send("Please enter a non-negative price for the book." + "<br>" + "<a href='/books/addbook'>Back</a>");
-        return;
-    }
-    // saving data in database
-    let sqlquery = "INSERT INTO books (name, price) VALUES (?,?)"
-    // execute sql query
-    let newrecord = [req.body.name, price]
-    db.query(sqlquery, newrecord, (err, result) => {
-        if (err) {
-            next(err)
+router.post('/bookadded', redirectLogin, [
+    // Validation rules
+    check('name').notEmpty(),
+    check('price').notEmpty(),
+    check('price').isFloat({ min: 0 })
+], function (req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('./addbook');
+    } else {
+        const price = parseFloat(req.body.price);
+        if (!Number.isFinite(price) || price < 0) {
+            res.send("Please enter a non-negative price for the book." + "<br>" + "<a href='/books/addbook'>Back</a>");
+            return;
         }
-        else
-            res.send(' This book is added to database, name: ' + req.body.name + ' price ' + req.body.price + '<br>' + '<a href="/books/addbook">Add another book</a>');
-    })
-})
+        // saving data in database
+        let sqlquery = "INSERT INTO books (name, price) VALUES (?,?)"
+        // execute sql query
+        let newrecord = [req.body.name, price]
+            db.query(sqlquery, newrecord, (err, result) => {
+                if (err) {
+                    next(err)
+                }
+                else
+                    res.send(' This book is added to database, name: ' + req.body.name + ' price ' + req.body.price + '<br>' + '<a href="/books/addbook">Add another book</a>');
+            })
+        }
+    });
 
 // Handle bargain books request
 router.get('/bargainbooks', function (req, res, next) {
@@ -106,7 +109,7 @@ router.get('/bargainbooks', function (req, res, next) {
 });
 
 // Handle delete book request
-router.get('/delete/:id', function (req, res, next) {
+router.get('/delete/:id', redirectLogin, function (req, res, next) {
     let bookId = req.params.id;
     let sqlquery = "DELETE FROM books WHERE id = ?"; // query database to delete the book with the specified id
     // execute sql query

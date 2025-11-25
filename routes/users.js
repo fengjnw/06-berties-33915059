@@ -2,6 +2,7 @@
 const express = require("express")
 const router = express.Router()
 const bcrypt = require('bcrypt')
+const { check, validationResult } = require('express-validator');
 
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
@@ -17,48 +18,59 @@ const redirectLogin = (req, res, next) => {
 }
 
 // Handle user registration request
-router.post('/registered', function (req, res, next) {
-    // validate input
-    if (!req.body.username || !req.body.first || !req.body.last || !req.body.email || !req.body.password) {
-        res.send("Please provide username, first name, last name, email, and password.");
-        return;
-    }
-    let sqlquery = "SELECT * FROM users WHERE username = ?";
-    // execute sql query to check if username already exists
-    db.query(sqlquery, [req.body.username], (err, result) => {
-        if (err) {
-            next(err)
-        }
-        if (result.length > 0) {
-            res.send("Username already exists. Please choose a different username." + "<br>" + "<a href='/users/register'>Back</a>");
-            return;
-        }
-    });
-    // hash password
-    const plainPassword = req.body.password;
-    const saltRounds = 10
-    bcrypt.hash(plainPassword, saltRounds, function (err, hashedPassword) {
-        // Store hashed password in your database
-        if (err) {
-            res.send("Error hashing password.");
-            return;
-        }
-        // saving data in database
-        let sqlquery = "INSERT INTO users (username, first_name, last_name, email, hashedPassword) VALUES (?,?,?,?,?)"
-        // execute sql query
-        let newrecord = [req.body.username, req.body.first, req.body.last, req.body.email, hashedPassword]
-        db.query(sqlquery, newrecord, (err, result) => {
+router.post('/registered', [
+    // Validation rules
+    check('username').notEmpty(),
+    check('username').isLength({ min: 5, max: 20 }),
+    check('username').isAlphanumeric(),
+    check('password').notEmpty(),
+    check('password').isLength({ min: 8 }),
+    check('first').notEmpty(),
+    check('last').notEmpty(),
+    check('email').notEmpty(),
+    check('email').isEmail(),
+    check('email').isLength({ max: 50 })
+], function (req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('./register');
+    } else {
+        let sqlquery = "SELECT * FROM users WHERE username = ?";
+        // execute sql query to check if username already exists
+        db.query(sqlquery, [req.body.username], (err, result) => {
             if (err) {
-                next(err)
+                return next(err);
             }
-            else {
-                result = 'Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered!  We will send an email to you at ' + req.body.email;
-                result += '\nYour password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword;
-                result += '<br><a href="/">Back to Home</a>';
-                res.send(result);
+            if (result.length > 0) {
+                res.send("Username already exists. Please choose a different username." + "<br>" + "<a href='/users/register'>Back</a>");
+                return;
             }
+            // hash password
+            const plainPassword = req.body.password;
+            const saltRounds = 10;
+            bcrypt.hash(plainPassword, saltRounds, function (err, hashedPassword) {
+                // Store hashed password in your database
+                if (err) {
+                    res.send("Error hashing password.");
+                    return;
+                }
+                // saving data in database
+                let insertQuery = "INSERT INTO users (username, first_name, last_name, email, hashedPassword) VALUES (?,?,?,?,?)";
+                // execute sql query
+                let newrecord = [req.body.username, req.body.first, req.body.last, req.body.email, hashedPassword];
+                db.query(insertQuery, newrecord, (err, result) => {
+                    if (err) {
+                        next(err);
+                    } else {
+                        let message = 'Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered!  We will send an email to you at ' + req.body.email;
+                        message += '\nYour password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword;
+                        message += '<br><a href="/">Back to Home</a>';
+                        res.send(message);
+                    }
+                });
+            });
         });
-    })
+    }
 });
 
 // Handle list users request
@@ -99,11 +111,14 @@ router.get('/login', function (req, res, next) {
 });
 
 // Handle user logged in request
-router.post('/loggedin', function (req, res, next) {
-    // validate input
-    if (!req.body.username || !req.body.password) {
-        res.send("Please provide both username and password. " + "<br>" + "<a href='/users/login'>Back</a>");
-        return;
+router.post('/loggedin', [
+    // Validation rules
+    check('username').notEmpty(),
+    check('password').notEmpty()
+], function (req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('./login');
     }
     // log the login attempt
     let logQuery = "INSERT INTO login_attempts (username, success, ip_address, reason) VALUES (?, ?, ?, ?)";
