@@ -52,6 +52,9 @@ host: process.env.BB_HOST
 - A middleware function `redirectLogin` checks if a user is logged in before allowing access to certain routes (list or delete user, audit login records, add or delete books).
 - If not logged in, the user is redirected to the login
 
+### Input sanitization
+- User inputs are sanitized using `express-sanitizer` to prevent XSS attacks.
+- Inputs sanitized include usernames, passwords, first/last names, email addresses, book names, book price, search terms, and IDs.
 
 ---
 

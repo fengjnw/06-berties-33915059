@@ -35,9 +35,10 @@ router.post('/registered', [
     if (!errors.isEmpty()) {
         return res.render('./register');
     } else {
+        let [username, password, first, last, email] = req.sanitize([req.body.username, req.body.password, req.body.first, req.body.last, req.body.email]);
         let sqlquery = "SELECT * FROM users WHERE username = ?";
         // execute sql query to check if username already exists
-        db.query(sqlquery, [req.body.username], (err, result) => {
+        db.query(sqlquery, [username], (err, result) => {
             if (err) {
                 return next(err);
             }
@@ -46,7 +47,7 @@ router.post('/registered', [
                 return;
             }
             // hash password
-            const plainPassword = req.body.password;
+            const plainPassword = password;
             const saltRounds = 10;
             bcrypt.hash(plainPassword, saltRounds, function (err, hashedPassword) {
                 // Store hashed password in your database
@@ -57,13 +58,13 @@ router.post('/registered', [
                 // saving data in database
                 let insertQuery = "INSERT INTO users (username, first_name, last_name, email, hashedPassword) VALUES (?,?,?,?,?)";
                 // execute sql query
-                let newrecord = [req.body.username, req.body.first, req.body.last, req.body.email, hashedPassword];
+                let newrecord = [username, first, last, email, hashedPassword];
                 db.query(insertQuery, newrecord, (err, result) => {
                     if (err) {
                         next(err);
                     } else {
-                        let message = 'Hello ' + req.body.first + ' ' + req.body.last + ' you are now registered!  We will send an email to you at ' + req.body.email;
-                        message += '\nYour password is: ' + req.body.password + ' and your hashed password is: ' + hashedPassword;
+                        let message = 'Hello ' + first + ' ' + last + ' you are now registered!  We will send an email to you at ' + email;
+                        message += '\nYour password is: ' + password + ' and your hashed password is: ' + hashedPassword;
                         message += '<br><a href="/">Back to Home</a>';
                         res.send(message);
                     }
@@ -120,34 +121,35 @@ router.post('/loggedin', [
     if (!errors.isEmpty()) {
         return res.render('./login');
     }
+    let [username, password] = req.sanitize([req.body.username, req.body.password]);
     // log the login attempt
     let logQuery = "INSERT INTO login_attempts (username, success, ip_address, reason) VALUES (?, ?, ?, ?)";
     // retrieve user from database
     let sqlquery = "SELECT * FROM users WHERE username = ?";
     // execute sql query
-    db.query(sqlquery, [req.body.username], (err, result) => {
+    db.query(sqlquery, [username], (err, result) => {
         if (err) {
             next(err)
         }
         if (result.length === 0) {
             res.send("User not found." + "<br>" + "<a href='/users/login'>Back</a>");
-            db.query(logQuery, [req.body.username, false, req.ip, 'User not found']);
+            db.query(logQuery, [username, false, req.ip, 'User not found']);
             return;
         }
         const hashedPassword = result[0].hashedPassword;
         // compare password
-        bcrypt.compare(req.body.password, hashedPassword, function (err, isMatch) {
+        bcrypt.compare(password, hashedPassword, function (err, isMatch) {
             if (err) {
                 next(err)
             }
             if (isMatch) {
                 // Save user session here, when login is successful
-                req.session.userId = req.body.username;
-                res.send("Login successful! Welcome " + req.body.username + "<br><a href='/'>Back to Home</a>");
-                db.query(logQuery, [req.body.username, true, req.ip, 'Login successful']);
+                req.session.userId = username;
+                res.send("Login successful! Welcome " + username + "<br><a href='/'>Back to Home</a>");
+                db.query(logQuery, [username, true, req.ip, 'Login successful']);
             } else {
                 res.send("Incorrect password." + "<br>" + "<a href='/users/login'>Back</a>");
-                db.query(logQuery, [req.body.username, false, req.ip, 'Incorrect password']);
+                db.query(logQuery, [username, false, req.ip, 'Incorrect password']);
             }
         });
     });
@@ -182,7 +184,7 @@ router.get('/audit', redirectLogin, function (req, res, next) {
 
 // Handle delete login attempt request
 router.get('/audit/delete/:id', redirectLogin, function (req, res, next) {
-    let attemptId = req.params.id;
+    let attemptId = req.sanitize(req.params.id);
     let sqlquery = "DELETE FROM login_attempts WHERE id = ?"; // query database to delete the login attempt with the specified id
     // execute sql query
     db.query(sqlquery, [attemptId], (err, result) => {
