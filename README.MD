@@ -81,12 +81,43 @@ node index.js
 
 ### Input Validation & Sanitization
 
-**Validation Strategy:**
+**Strategy:**
 - Frontend: HTML5 validation (`required`, `type="email"`, `min`/`step`)
 - Backend: `express-validator` for type checking, format validation, length limits
 - Sanitization: `express-sanitizer` for user-visible text fields only
-- Database: Parameterized queries prevent SQL injection
+- Database**: Parameterized queries prevent SQL injection
 - Passwords: Hashed with bcrypt (10 rounds)
+- Error Handling: Validation failures return HTTP 400 with detailed error messages
+
+**Validated Fields (with Backend Validation):**
+
+Registration (`/users/registered`)
+- `username` - Required, 1-20 characters, alphanumeric only
+- `password` - Required, minimum 8 characters
+- `first` (first name) - Required, non-empty
+- `last` (last name) - Required, non-empty
+- `email` - Required, valid email format (`.isEmail()`), max 50 characters
+
+Login (`/users/loggedin`)
+- `username` - Required, non-empty
+- `password` - Required, non-empty
+
+Add Book (`/books/bookadded`)
+- `name` - Required, 1-50 characters
+- `price` - Required, float >= 0
+
+Search Books (`/books/search_result`)
+- `search_text` - Required, max 100 characters
+- `search_mode` - Required, must be "Exact Match" or "Partial Match" (whitelist)
+
+*Delete Operations*
+- `id` (book/user/audit) - Integer >= 1
+
+**NOT Validated:**
+- GET requests with no parameters (list views, static pages) - No user input to validate
+- Logout - No form data; only destroys session
+- Already validated in databas* - IDs retrieved from database queries are trusted
+- Session data (`userId`) - Already validated during login, stored server-side
 
 **Sanitized Fields (XSS Protection):**
 - Registration: `username`, `first_name`, `last_name`
@@ -95,10 +126,11 @@ node index.js
 - Search: `search_text`
 
 **NOT Sanitized (validated differently):**
-- Passwords (hashed immediately)
-- Emails (validated with `.isEmail()`)
-- Numbers (validated as float/int, parsed)
-- Enums (whitelist validation)
+- Passwords (hashed immediately, never displayed)
+- Emails (validated with `.isEmail()`, not rendered as HTML)
+- Numbers (validated as float/int, parsed to number type)
+- Enums (whitelist validation with `.isIn()`)
+- IDs (validated as integers, used in parameterized queries)
 
 ### Authentication & Sessions
 - Session-based authentication using `express-session`

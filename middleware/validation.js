@@ -1,9 +1,7 @@
 const { validationResult } = require('express-validator');
 
-/**
- * Middleware to handle validation errors
- * If validation fails, renders a template with error messages and provides a back link
- */
+//  Middleware to handle validation errors
+//  If validation fails, renders a template with error messages and provides a back link
 const handleValidationErrors = (backUrl, title = 'Validation Failed') => {
     return (req, res, next) => {
         const errors = validationResult(req);
