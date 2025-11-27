@@ -10,4 +10,16 @@ const redirectLogin = (req, res, next) => {
     }
 }
 
-module.exports = { redirectLogin };
+// If user is already logged in, prevent access to auth pages (login/register)
+const redirectIfLoggedIn = (req, res, next) => {
+    if (req.session && req.session.userId) {
+        return res.render('message', {
+            title: 'Already Logged In',
+            message: 'You are already logged in. No need to log in or register again.',
+            backLink: '/'
+        });
+    }
+    next();
+}
+
+module.exports = { redirectLogin, redirectIfLoggedIn };

@@ -4,14 +4,14 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const { check, validationResult } = require('express-validator');
 const { handleValidationErrors } = require('../middleware/validation');
-const { redirectLogin } = require('../middleware/auth');
+const { redirectLogin, redirectIfLoggedIn } = require('../middleware/auth');
 
-router.get('/register', function (req, res, next) {
+router.get('/register', redirectIfLoggedIn, function (req, res, next) {
     res.render('register.ejs')
 })
 
 // Handle user registration request
-router.post('/registered', [
+router.post('/registered', redirectIfLoggedIn, [
     // Validation rules with custom error messages
     check('username').notEmpty().withMessage('Username is required'),
     check('username').isLength({ min: 1, max: 20 }).withMessage('Username must be between 1 and 20 characters'),
@@ -118,14 +118,14 @@ router.post('/delete/:id', redirectLogin, [
 });
 
 // Handle user login request
-router.get('/login', function (req, res, next) {
+router.get('/login', redirectIfLoggedIn, function (req, res, next) {
     const message = req.session.loginMessage || '';
     delete req.session.loginMessage; // clear the message after reading
     res.render('login.ejs', { message: message })
 });
 
 // Handle user logged in request
-router.post('/loggedin', [
+router.post('/loggedin', redirectIfLoggedIn, [
     // Validation rules with custom error messages
     check('username').notEmpty().withMessage('Username is required'),
     check('password').notEmpty().withMessage('Password is required')
