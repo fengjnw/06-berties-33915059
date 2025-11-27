@@ -16,10 +16,9 @@
         <% if (typeof session !=='undefined' && session.userId) { %>
             Logged in as: <strong>
                 <%= session.userId %>
-            </strong> | <a href="<%= basePath %>/users/logout">Logout</a>
+            </strong> | <a href="/users/logout">Logout</a>
             <% } else { %>
-                Not logged in | <a href="<%= basePath %>/users/login">Login</a> | <a
-                    href="<%= basePath %>/users/register">Register</a>
+                Not logged in | <a href="/users/login">Login</a> | <a href="/users/register">Register</a>
                 <% } %>
     </p>
     <hr>
