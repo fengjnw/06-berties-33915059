@@ -36,7 +36,11 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        expires: 600000
+        // Limit cookie to this site only and reduce attack surface
+        httpOnly: true,  // prevent client side JS access
+        sameSite: 'lax', // prevent CSRF attacks
+        secure: false,   // set to true if using https
+        maxAge: 600000   // 10 minutes
     }
 }))
 
@@ -45,6 +49,8 @@ app.use((req, res, next) => {
     res.locals.session = req.session;
     next();
 });
+
+// CSRF token injection disabled
 
 // 
 const db = mysql.createPool({
@@ -69,6 +75,8 @@ app.use('/users', usersRoutes)
 // Load the route handlers for /books
 const booksRoutes = require('./routes/books')
 app.use('/books', booksRoutes)
+
+// CSRF error handler removed
 
 // Start the web app listening
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

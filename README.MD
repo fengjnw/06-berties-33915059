@@ -84,23 +84,24 @@ node index.js
 
 ### Input Validation & Sanitization
 
-- Strategy
-    - Frontend: HTML5 validation (`required`, `type="email"`, `min`/`step`)
-    - Backend: `express-validator` for type checking, format validation, length limits
-    - Sanitization: `express-sanitizer` for user-visible text fields only
-    - Database: Parameterized queries prevent SQL injection
+**Validation Strategy:**
+- Frontend: HTML5 validation (`required`, `type="email"`, `min`/`step`)
+- Backend: `express-validator` for type checking, format validation, length limits
+- Sanitization: `express-sanitizer` for user-visible text fields only
+- Database: Parameterized queries prevent SQL injection
+- Passwords: Hashed with bcrypt (10 rounds)
 
-- Sanitized Fields (XSS Protection)
-    - Registration: `username`, `first_name`, `last_name`
-    - Login: `username`
-    - Add Book: `name`
-    - Search: `search_text`
+**Sanitized Fields (XSS Protection):**
+- Registration: `username`, `first_name`, `last_name`
+- Login: `username`
+- Add Book: `name`
+- Search: `search_text`
 
-- NOT Sanitized (validated differently)
-    - Passwords (hashed immediately)
-    - Emails (validated with `.isEmail()`)
-    - Numbers (validated as float/int, parsed)
-    - Enums (whitelist validation)
+**NOT Sanitized (validated differently):**
+- Passwords (hashed immediately)
+- Emails (validated with `.isEmail()`)
+- Numbers (validated as float/int, parsed)
+- Enums (whitelist validation)
 
 ### Authentication & Sessions
 - Session-based authentication using `express-session`
@@ -108,6 +109,7 @@ node index.js
 - Protected routes redirect to login with return URL
 - Login status displayed in header across all pages
 - Session timeout: 10 minutes (600000ms)
+- SameSite cookies to mitigate CSRF
 
 ### Environment Variables
 - Database credentials managed via `.env` file using `dotenv` package
@@ -127,6 +129,7 @@ node index.js
 
 ### Delete Functionality
 - Books, users, and audit logs can be deleted
+- Uses POST method (not GET) to prevent accidental deletions
 - Implemented for debugging purposes only
 - Requires authentication
-- Need confirmation prompt before deletion
+- Confirmation prompt before deletion
