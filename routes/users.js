@@ -160,14 +160,15 @@ router.post('/loggedin', redirectIfLoggedIn, [
                 // Save user session here, when login is successful
                 req.session.userId = username;
                 db.query(logQuery, [username, true, req.ip, 'Login successful']);
-                // Redirect to the page user wanted to visit, or home page
+                // Determine page user wanted to visit, or home page
                 const returnTo = req.session.returnTo || '/';
                 delete req.session.returnTo; // clean up
                 delete req.session.loginMessage; // clean up message
-                // Show success message and redirect after 2 seconds
-                res.render('login_success', {
-                    username: username,
-                    redirectUrl: returnTo
+                // Show success message with a manual Back link (no auto-redirect)
+                res.render('message', {
+                    title: 'Login Successful',
+                    message: `Welcome back, ${username}!`,
+                    backLink: returnTo
                 });
             } else {
                 db.query(logQuery, [username, false, req.ip, 'Incorrect password']);

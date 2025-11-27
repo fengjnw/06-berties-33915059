@@ -21,40 +21,44 @@ mysql -u root -p < insert_test_data.sql
 node index.js
 ```
 
-## Project Structure
+## Project Structure (tracked in Git)
 ```
 .
-├── create_db.sql           # Database schema
-├── insert_test_data.sql    # Sample data
-├── setup_db.js             # Database initialization script
-├── index.js                # Express app entry point
-├── package.json
-├── .env                    # Environment variables (not in repo)
+├── .env.example
+├── .gitignore
+├── README.MD
+├── create_db.sql
+├── insert_test_data.sql
+├── index.js
+├── links.txt
 ├── middleware/
-│   ├── auth.js             # Authentication middleware
-│   └── validation.js       # Validation error handling
+│   ├── auth.js
+│   └── validation.js
+├── package-lock.json
+├── package.json
 ├── public/
-│   └── main.css            # Site-wide styling
+│   └── main.css
 ├── routes/
-│   ├── main.js             # Root + about pages
-│   ├── books.js            # Book CRUD/search routes
-│   └── users.js            # User registration, login, audit routes
+│   ├── books.js
+│   ├── main.js
+│   └── users.js
+├── tasks.md
 └── views/
-    ├── partials/
-    │   ├── header.ejs      # Shared header with login status
-    │   └── footer.ejs      # Shared footer with navigation
-    ├── index.ejs
     ├── about.ejs
-    ├── register.ejs
-    ├── login.ejs
-    ├── user_list.ejs
     ├── addbook.ejs
-    ├── book_list.ejs
     ├── bargainbooks.ejs
+    ├── book_list.ejs
+    ├── index.ejs
+    ├── login.ejs
+    ├── login_audit.ejs
+    ├── message.ejs
+    ├── partials/
+    │   ├── footer.ejs
+    │   └── header.ejs
+    ├── register.ejs
     ├── search.ejs
     ├── search_result.ejs
-    ├── login_audit.ejs
-    ├── message.ejs         # Generic message template
+    ├── user_list.ejs
     └── validation_errors.ejs
 ```
 
@@ -83,6 +87,7 @@ node index.js
 - `GET /users/delete/:id` - Delete a user (requires login)
 - `GET /users/audit` - View login attempts (requires login)
 - `GET /users/audit/delete/:id` - Delete audit log entry (requires login)
+
 ## Features
 
 ### Routes Protection
@@ -122,7 +127,7 @@ Search Books (`/books/search_result`)
 - `search_text` - Required, max 100 characters
 - `search_mode` - Required, must be "Exact Match" or "Partial Match" (whitelist)
 
-*Delete Operations*
+Delete Operations
 - `id` (book/user/audit) - Integer >= 1
 
 **NOT Validated:**
