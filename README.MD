@@ -11,7 +11,7 @@ npm install
 # Create your .env file from the example
 cp .env.example .env
 
-# Edit .env and set your database credentials and session secret
+# Edit .env to set your database credentials, session secret, and base path if needed
 
 # Set up the database (create user and grant permissions first in MySQL)
 mysql -u root -p < create_db.sql

@@ -32,7 +32,7 @@ app.locals.shopData = { shopName: "Bertie's Books" }
 
 // Set up the session middleware
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'somerandomstuff',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
