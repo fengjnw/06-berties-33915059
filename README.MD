@@ -90,6 +90,36 @@ node index.js
 
 ## Features
 
+
+
+## Features
+
+### Weather Integration
+- Real-time weather information using OpenWeatherMap API
+- City-based weather search
+- Displays temperature, weather conditions, and icon
+- Shows detailed metrics: pressure, humidity, wind speed and direction
+- Dynamic temperature color coding:
+  - Blue (< 0°C) - Freezing
+  - Light blue (0-10°C) - Cold
+  - Green (10-20°C) - Cool
+  - Orange (20-30°C) - Warm
+  - Red (≥ 30°C) - Hot
+- Access at `/weather`
+
+### API
+- Endpoint: `GET /api/books`
+- Description: Search and filter books with JSON response
+- Query Parameters:
+  - `search` - Search term for book name (optional, max 100 chars)
+  - `min_price` - Minimum price filter (optional, float >= 0)
+  - `max_price` - Maximum price filter (optional, float >= 0)
+  - `sort` - Sort order: "name" (ascending) or "price" (descending) (optional)
+- Validation: All parameters validated with `express-validator`
+- Error Responses: Returns HTTP 400 with JSON error details for invalid input
+- Success Response: JSON array of book objects
+- Example: `/api/books?search=br&min_price=10&max_price=50&sort=price`
+
 ### Routes Protection
 - Book management (add, delete) - Prevent unauthorized inventory changes
 - User management (list, delete) - Protect sensitive user data

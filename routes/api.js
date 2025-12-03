@@ -35,7 +35,6 @@ router.get('/books', [
     // Build the sql query based on the provided parameters
     let sqlquery = "SELECT * FROM books WHERE name LIKE CONCAT('%', ?, '%')"
     let params = [searchTerm]
-
     if (minPrice) {
         sqlquery += " AND price >= ?"
         params.push(minPrice)
