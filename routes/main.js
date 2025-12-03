@@ -23,7 +23,12 @@ router.get('/weather', function (req, res, next) {
         if (err) {
             next(err)
         } else {
-            res.send(body)
+            var weather = JSON.parse(body)
+            var wmsg = 'It is ' + weather.main.temp +
+                ' degrees in ' + weather.name +
+                '! <br> The humidity now is: ' +
+                weather.main.humidity;
+            res.send(wmsg);
         }
     });
 });

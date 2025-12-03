@@ -69,9 +69,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// CSRF token injection disabled
-
-// 
+// Set up the database connection pool 
 const db = mysql.createPool({
     host: process.env.BB_HOST || 'localhost',
     user: process.env.BB_USER,
