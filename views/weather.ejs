@@ -1,0 +1,42 @@
+<%- include('partials/header', { pageTitle: 'Weather - ' + shopData.shopName }) %>
+
+    <h2>Check the Weather</h2>
+    <!-- Form to check the weather -->
+    <form action="/weather" method="GET">
+        <p>Enter City Name:</p>
+        <input id="city-name" type="text" name="city">
+        <input type="submit" value="Check Weather">
+    </form>
+    <% if (weatherData) { %>
+        <h3>Weather in <%= weatherData.city %>
+        </h3>
+
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <img src="https://openweathermap.org/img/wn/<%= weatherData.icon %>@2x.png" alt="Weather icon" width="60"
+                height="60">
+            <div>
+                <div style="font-size: 24px; font-weight: bold;">
+                    <%= weatherData.main %>
+                </div>
+                <div style="font-size: 14px; color: #666;">
+                    <%= weatherData.description %>
+                </div>
+            </div>
+            <% let tempColor; const temp=parseFloat(weatherData.temperature); if (temp < 0) { tempColor='#0066cc' ;}
+                else if (temp < 10) { tempColor='#3399ff' ;} else if (temp < 20) { tempColor='#66cc66' ;} else if (temp
+                < 30) { tempColor='#ff9933' ; } else { tempColor='#ff3333' ;} %>
+                <div style="font-size: 32px; color: <%= tempColor %>; font-weight: bold;">
+                    <%= weatherData.temperature %> °C
+                </div>
+                <div style="font-size: 14px; color: #555; line-height: 1.6;">
+                    <div>Pressure: <%= weatherData.pressure %> hPa</div>
+                    <div>Humidity: <%= weatherData.humidity %> %</div>
+                    <div>Wind Speed: <%= weatherData.wind %> m/s</div>
+                    <div>Wind Direction: <%= weatherData.windDirection %> (<%= weatherData.windDegree %>°)</div>
+                </div>
+        </div>
+        <% } %>
+            <br>
+            <a href="/">Back</a>
+
+            <%- include('partials/footer') %>

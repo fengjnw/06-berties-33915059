@@ -4,6 +4,9 @@ const router = express.Router()
 // Import request
 const request = require('request')
 
+// Import validation modules
+const { check, validationResult } = require('express-validator');
+
 // Handle our routes
 router.get('/', function (req, res, next) {
     res.render('index.ejs')
@@ -15,20 +18,63 @@ router.get('/about', function (req, res, next) {
 });
 
 router.get('/weather', function (req, res, next) {
-    let apiKey = 'd44dc98a573ec85fca3308cb3e535b96'
-    let city = 'london'
-    let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
+    const apiKey = 'd44dc98a573ec85fca3308cb3e535b96'
+    if (!req.query.city) {
+        res.render('weather.ejs', { weatherData: null });
+        return;
+    }
+    const city = req.sanitize(req.query.city)
+    const url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
 
     request(url, function (err, response, body) {
         if (err) {
             next(err)
         } else {
-            var weather = JSON.parse(body)
-            var wmsg = 'It is ' + weather.main.temp +
-                ' degrees in ' + weather.name +
-                '! <br> The humidity now is: ' +
-                weather.main.humidity;
-            res.send(wmsg);
+            const weather = JSON.parse(body)
+            if (weather.cod != 200) {
+                res.render('message', {
+                    title: 'City Not Found',
+                    message: `Could not find weather data for city: ${city}. Please try again.`,
+                    backLink: '/weather'
+                });
+                return;
+            }
+            function getWindDirection(degree) {
+                if (degree >= 337.5 || degree < 22.5) {
+                    return "North";
+                } else if (degree >= 22.5 && degree < 67.5) {
+                    return "NorthEast";
+                } else if (degree >= 67.5 && degree < 112.5) {
+                    return "East";
+                } else if (degree >= 112.5 && degree < 157.5) {
+                    return "SouthEast";
+                } else if (degree >= 157.5 && degree < 202.5) {
+                    return "South";
+                } else if (degree >= 202.5 && degree < 247.5) {
+                    return "SouthWest";
+                } else if (degree >= 247.5 && degree < 292.5) {
+                    return "West";
+                } else if (degree >= 292.5 && degree < 337.5) {
+                    return "NorthWest";
+                } else {
+                    return "N/A";
+                }
+            }
+            const windDirection = getWindDirection(weather.wind.deg);
+            res.render('weather.ejs', {
+                weatherData: {
+                    city: weather.name,
+                    main: weather.weather[0].main,
+                    description: weather.weather[0].description,
+                    icon: weather.weather[0].icon,
+                    temperature: weather.main.temp,
+                    pressure: weather.main.pressure,
+                    humidity: weather.main.humidity,
+                    wind: weather.wind.speed,
+                    windDirection: windDirection,
+                    windDegree: weather.wind.deg
+                }
+            });
         }
     });
 });
