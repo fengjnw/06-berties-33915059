@@ -120,7 +120,7 @@ node index.js
   - JSON parse errors (caught with try/catch)
 
 ### RESTful API
-- Access at `GET /api/books`
+- Endpoint at `GET /api/books`
 - Search and filter books with JSON response
 - Query Parameters:
     - `search` - Search term for book name (optional, max 100 chars)
