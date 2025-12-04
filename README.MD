@@ -28,6 +28,7 @@ node index.js
 ├── .gitignore
 ├── README.MD
 ├── create_db.sql
+├── create_db-credentials.sql
 ├── insert_test_data.sql
 ├── index.js
 ├── links.txt
@@ -39,6 +40,7 @@ node index.js
 ├── public/
 │   └── main.css
 ├── routes/
+│   ├── api.js
 │   ├── books.js
 │   ├── main.js
 │   └── users.js
@@ -51,6 +53,7 @@ node index.js
     ├── index.ejs
     ├── login.ejs
     ├── login_audit.ejs
+    ├── login_success.ejs
     ├── message.ejs
     ├── partials/
     │   ├── footer.ejs
@@ -59,7 +62,8 @@ node index.js
     ├── search.ejs
     ├── search_result.ejs
     ├── user_list.ejs
-    └── validation_errors.ejs
+    ├── validation_errors.ejs
+    └── weather.ejs
 ```
 
 ## Routes
@@ -67,6 +71,10 @@ node index.js
 ### Main (`routes/main.js`)
 - `GET /` - Home page
 - `GET /about` - About page
+- `GET /weather` - Weather check page with city search
+
+### API (`routes/api.js`)
+- `GET /api/books` - RESTful API endpoint for books search and filtering
 
 ### Books (`routes/books.js`)
 - `GET /books/list` - View all books
