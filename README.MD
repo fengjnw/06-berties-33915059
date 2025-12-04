@@ -103,8 +103,9 @@ node index.js
 ## Features
 
 ### Weather Integration
+- Access at `/weather`
 - Real-time weather information using OpenWeatherMap API
-- City-based weather search
+- City-based weather search with comprehensive error handling
 - Displays temperature, weather conditions, and icon
 - Shows detailed metrics: pressure, humidity, wind speed and direction
 - Dynamic temperature color coding:
@@ -113,20 +114,26 @@ node index.js
   - Green (10-20°C) - Cool
   - Orange (20-30°C) - Warm
   - Red (≥ 30°C) - Hot
-- Access at `/weather`
+- Handle errors and display error messages on a page:
+  - Network errors (caught in request callback)
+  - JSON parse errors (caught with try/catch)
+  - Status code errors from API (e.g., city not found)
 
 ### RESTful API
-- Endpoint: `GET /api/books`
-- Description: Search and filter books with JSON response
+- Access at `GET /api/books`
+- Search and filter books with JSON response
 - Query Parameters:
-  - `search` - Search term for book name (optional, max 100 chars)
-  - `min_price` - Minimum price filter (optional, float >= 0)
-  - `max_price` - Maximum price filter (optional, float >= 0)
-  - `sort` - Sort order: "name" (ascending) or "price" (descending) (optional)
-- Validation: All parameters validated with `express-validator`
-- Error Responses: Returns HTTP 400 with JSON error details for invalid input
-- Success Response: JSON array of book objects
+    - `search` - Search term for book name (optional, max 100 chars)
+    - `min_price` - Minimum price filter (optional, float >= 0)
+    - `max_price` - Maximum price filter (optional, float >= 0)
+    - `sort` - Sort order: "name" (ascending) or "price" (descending) (optional)
 - Example: `/api/books?search=br&min_price=10&max_price=50&sort=price`
+- All parameters validated with `express-validator`
+- Responds with JSON data with error handling:
+    - Successful queries return status `200` and `{"success": true, "data": [...]}`
+    - Invalid parameters return status `400` with `{"success": false, "errors": [...]}`
+    - Logical errors (e.g., min_price > max_price) return status `400` with `{"success": false, "error": 'Minimum price cannot be greater than maximum price'}`
+    - Database errors return status `500` with `{"success": false, "error": 'Database query failed'}`
 
 ### Routes Protection
 - Book management (add, delete) - Prevent unauthorized inventory changes

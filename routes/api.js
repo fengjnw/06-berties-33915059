@@ -29,12 +29,16 @@ router.get('/books', [
 
     // Validate price range
     if (minPrice && maxPrice && parseFloat(minPrice) > parseFloat(maxPrice)) {
-        return res.status(400).json({ error: 'Minimum price cannot be greater than maximum price' });
+        return res.status(400).json({
+            success: false,
+            error: 'Minimum price cannot be greater than maximum price'
+        });
     }
 
     // Build the sql query based on the provided parameters
     let sqlquery = "SELECT * FROM books WHERE name LIKE CONCAT('%', ?, '%')"
     let params = [searchTerm]
+
     if (minPrice) {
         sqlquery += " AND price >= ?"
         params.push(minPrice)
@@ -50,15 +54,19 @@ router.get('/books', [
     }
 
     // Execute the sql query
-    db.query(sqlquery, params, (err, result) => {
-        // Return results as a JSON object
+    db.query(sqlquery, params, function (err, result) {
         if (err) {
-            res.json(err)
-            next(err)
+            console.error('Database query error:', err.message)
+            return res.status(500).json({
+                success: false,
+                error: 'Database query failed'
+            })
         }
-        else {
-            res.json(result)
-        }
+
+        res.status(200).json({
+            success: true,
+            data: result
+        })
     })
 })
 
