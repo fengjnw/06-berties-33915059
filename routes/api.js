@@ -15,9 +15,10 @@ router.get('/books', [
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        console.error('Validation errors:', errors.array());
         return res.status(400).json({
             success: false,
-            errors: errors.array()
+            error: errors.array()
         });
     }
 
@@ -29,6 +30,7 @@ router.get('/books', [
 
     // Validate price range
     if (minPrice && maxPrice && parseFloat(minPrice) > parseFloat(maxPrice)) {
+        console.error('Validation error: Minimum price cannot be greater than maximum price');
         return res.status(400).json({
             success: false,
             error: 'Minimum price cannot be greater than maximum price'

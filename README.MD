@@ -110,14 +110,25 @@ node index.js
   - Green (10-20°C) - Cool
   - Orange (20-30°C) - Warm
   - Red (≥ 30°C) - Hot
-- Handle errors and display error messages on a page:
-  - Network errors (caught in request callback)
-  - Status code errors from API (e.g., city not found)
-  - JSON parse errors (caught with try/catch)
+- Error Handling (using async/await pattern):
+  - Route handler marked as async function to enable await usage
+  - Wrapped `request()` in `Promise` for async/await compatibility
+  - Network errors: caught in try/catch block, passed to Express error handler
+  - HTTP status code validation: checks response.statusCode before parsing JSON
+    - 404 status: displays specific "City Not Found" error message
+    - Other non-200 status: displays generic error message
+  - JSON parse errors: caught with nested try/catch during body parsing
+  - All errors logged to console and displayed on error page
 
 ### RESTful API
 - Endpoint at `GET /api/books`
-- Search and filter books with JSON response
+- Search and filter books with JSON response, structured as: 
+  ```json
+  {
+    "success": true,
+    "data": [ { book1 }, { book2 }, ... ]
+  }
+  ```
 - Query Parameters:
     - `search` - Search term for book name (optional, max 100 chars)
     - `min_price` - Minimum price filter (optional, float >= 0)
@@ -125,11 +136,18 @@ node index.js
     - `sort` - Sort order: "name" (ascending) or "price" (descending) (optional)
 - Example: `/api/books?search=br&min_price=10&max_price=50&sort=price`
 - All parameters validated with `express-validator`
-- Responds with JSON data with error handling:
-    - Successful queries return status `200` and `{"success": true, "data": [...]}`
-    - Invalid parameters return status `400` with `{"success": false, "errors": [...]}`
-    - Logical errors (e.g., min_price > max_price) return status `400` with `{"success": false, "error": 'Minimum price cannot be greater than maximum price'}`
-    - Database errors return status `500` with `{"success": false, "error": 'Database query failed'}`
+- Error Handling:
+    - Input validation via express-validator middleware returns 400 with error details
+    - Business logic validation (min_price <= max_price) returns 400 with specific message
+    - Database query errors caught in callback return 500 with generic error
+    - All errors logged to console
+    - Error responses structured as:
+      ```json
+      {
+        "success": false,
+        "error": "Error message here"
+      }
+      ```
 
 ### Routes Protection
 - Book management (add, delete) - Prevent unauthorized inventory changes
