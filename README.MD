@@ -98,10 +98,6 @@ node index.js
 
 ## Features
 
-
-
-## Features
-
 ### Weather Integration
 - Access at `/weather`
 - Real-time weather information using OpenWeatherMap API

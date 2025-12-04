@@ -41,28 +41,31 @@ function getWindDirection(degree) {
 }
 
 // Handle weather page request
-router.get('/weather', function (req, res, next) {
-    const apiKey = process.env.WEATHER_API_KEY;
-
+router.get('/weather', async function (req, res, next) {
     // If no city provided, just render the page with no data
     if (!req.query.city) {
         return res.render('weather.ejs', { weatherData: null });
     }
 
+    const apiKey = process.env.WEATHER_API_KEY;
     const city = req.sanitize(req.query.city);
     const url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
 
-    // Make the API request
-    request(url, function (err, response, body) {
-        if (err) {
-            console.error('Weather API error:', err.message);
-            return next(err);
-        }
+    // Try-catch block for error handling
+    try {
+        // Make the API request
+        // Promisify the request call for async/await usage
+        const response = await new Promise((resolve, reject) => {
+            request(url, (err, response, body) => {
+                if (err) reject(err);
+                else resolve({ response, body });
+            });
+        });
 
         // Check HTTP status code first
-        if (response.statusCode !== 200) {
-            console.error('Weather API returned status:', response.statusCode);
-            if (response.statusCode === 404) {
+        if (response.response.statusCode !== 200) {
+            console.error('Weather API returned status:', response.response.statusCode);
+            if (response.response.statusCode === 404) {
                 return res.render('message', {
                     title: 'City Not Found',
                     message: `The city "${city}" was not found. Please check the name and try again.`,
@@ -79,7 +82,7 @@ router.get('/weather', function (req, res, next) {
         // Parse the JSON response
         let weather;
         try {
-            weather = JSON.parse(body);
+            weather = JSON.parse(response.body);
         } catch (parseError) {
             console.error('JSON parse error:', parseError.message);
             return next(parseError);
@@ -101,7 +104,10 @@ router.get('/weather', function (req, res, next) {
                 windDegree: weather.wind.deg
             }
         });
-    });
+    } catch (err) {
+        console.error('Weather request error:', err.message);
+        return next(err);
+    }
 });
 
 // Export the router object so index.js can access it
