@@ -116,8 +116,8 @@ node index.js
   - Red (≥ 30°C) - Hot
 - Handle errors and display error messages on a page:
   - Network errors (caught in request callback)
-  - JSON parse errors (caught with try/catch)
   - Status code errors from API (e.g., city not found)
+  - JSON parse errors (caught with try/catch)
 
 ### RESTful API
 - Access at `GET /api/books`

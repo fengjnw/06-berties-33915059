@@ -59,6 +59,23 @@ router.get('/weather', function (req, res, next) {
             return next(err);
         }
 
+        // Check HTTP status code first
+        if (response.statusCode !== 200) {
+            console.error('Weather API returned status:', response.statusCode);
+            if (response.statusCode === 404) {
+                return res.render('message', {
+                    title: 'City Not Found',
+                    message: `The city "${city}" was not found. Please check the name and try again.`,
+                    backLink: '/weather'
+                });
+            }
+            return res.render('message', {
+                title: 'Error',
+                message: 'Failed to get weather data. Please try again.',
+                backLink: '/weather'
+            });
+        }
+
         // Parse the JSON response
         let weather;
         try {
@@ -66,15 +83,6 @@ router.get('/weather', function (req, res, next) {
         } catch (parseError) {
             console.error('JSON parse error:', parseError.message);
             return next(parseError);
-        }
-
-        // Check API response status
-        if (weather.cod != '200') {
-            return res.render('message', {
-                title: 'Error',
-                message: `Failed to get the weather for ${city}. Please check the city name.`,
-                backLink: '/weather'
-            });
         }
 
         const windDirection = getWindDirection(weather.wind.deg);
