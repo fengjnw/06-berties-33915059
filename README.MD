@@ -115,7 +115,7 @@ node index.js
   - Red (≥ 30°C) - Hot
 - Access at `/weather`
 
-### API
+### RESTful API
 - Endpoint: `GET /api/books`
 - Description: Search and filter books with JSON response
 - Query Parameters:
